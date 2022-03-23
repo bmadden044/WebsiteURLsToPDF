@@ -44,7 +44,7 @@ def main():
     # Word exception for sitemap list, good to remove irrelevant data
     exceptions = []
     # Enter desired website here
-    website = "https://oldschool.runescape.wiki/"
+    website = ""
 
     exceptionText = open("exceptionsText.txt", "r")
     for textLine in exceptionText:
