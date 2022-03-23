@@ -1,5 +1,7 @@
 from usp.tree import sitemap_tree_for_homepage
 import pdfkit
+from PyPDF2 import PdfFileMerger
+
 
 class GetListOfURL:
 
@@ -30,35 +32,46 @@ class GetListOfURL:
                 self.listPages.append(page)
                 print(page)
 
-
         self.listToTXT()
 
     def listToTXT(self):
-        textFile = open("ListOfWebsites", "w")
+        textFile = open("ListOfWebPages", "w")
         for element in self.listPages:
             textFile.write(element + "\n")
 
 
 def main():
-    # exceptions = ['User_talk', 'Talk', 'File', 'Category', 'Exchange', 'Transcript', 'Property', 'Module_talk', 'Module:Sandbox', 'Module', 'Template', 'RuneScape:Varbit', 'User', 'Concept', 'Map', 'Calculator', 'Forum', 'MediaWiki', 'Requests', 'RuneScape', 'Update', 'Help','Money_making_guide']
-    # x = GetListOfURL("https://oldschool.runescape.wiki/", exceptions)
-    # GetListOfURL.listToTXT(x)
+    # Word exception for sitemap list, good to remove irrelevant data
+    exceptions = []
+    # Enter desired website here
+    website = "https://oldschool.runescape.wiki/"
 
+    exceptionText = open("exceptionsText.txt", "r")
+    for textLine in exceptionText:
+        textLineWithoutNewline = textLine.rstrip()
+        exceptions.append(textLineWithoutNewline)
+    print(exceptions)
+    exceptionText.close()
+
+    x = GetListOfURL(website, exceptions)
+    GetListOfURL.listToTXT(x)
+    # Change path to whatever your is
     path_wkhtmltopdf = b'C:\Program Files\wkhtmltopdf\\bin\wkhtmltopdf.exe'
     config = pdfkit.configuration(wkhtmltopdf=path_wkhtmltopdf)
 
-    textFile = open("ListOfWebsites", "r")
-    listOfLinks = [(line.strip()).split() for line in textFile]
-    textFile.close()
-    test = ["https://oldschool.runescape.wiki/w/Molten_glass", "https://oldschool.runescape.wiki/w/Molten_glass", "https://oldschool.runescape.wiki/w/Molten_glass"]
+    textFile = open("ListOfWebPages", "r")
 
-    # print(listOfLinks)
-    # TODO Currently rewrites Output for every PDF, fix
-    # List seems to be solid lead, but currently get another error, looking into --allow-file-access-from-file
-
-    pdfkit.from_url(test,"Output.pdf", configuration=config)
-
+    merger = PdfFileMerger()
+    print("Start")
+    # TODO Currently runs painfully slow, find a workaround
+    for line in textFile:
+        print(line)
+        pdfkit.from_url(line, "singleOutput.pdf", configuration=config)
+        print("Begun append")
+        merger.append("singleOutput.pdf", import_bookmarks=False)
+        print("Done")
+    merger.write("Output.pdf")
+    merger.close()
 
 if __name__ == '__main__':
     main()
-
